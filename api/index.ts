@@ -1,13 +1,11 @@
 import { Request, Response } from 'express';
 
-export {};
-
 //Imports
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const nodeMailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -15,18 +13,10 @@ const passport = require('passport');
 const joi = require('joi');
 
 require('dotenv').config();
-require('./auth');
 
 //models imports
 const User = require('./models/users');
 const Order = require('./models/order');
-
-//joi validation schema
-const schema = joi.object({
-  name: joi.string().required(),
-  email: joi.string().email().required(),
-  password: joi.string().min(8).required(),
-});
 
 //Initialization
 const app = express();
@@ -53,11 +43,39 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-//function to send verification email to the user
-const sendVerificationEmail = async (email: string, verification: string) => {
+///
+///
+//========joi validation schema==========
+const RegSchema = joi.object({
+  name: joi.string().required(),
+  email: joi.string().email().required(),
+  password: joi.string().min(8).required(),
+});
+
+const logSchema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().min(8).required(),
+});
+
+///
+///=======SecretKey JWT========
+const generateSecretKey = () => {
+  const secretKey = crypto.randomBytes(32).toString('hex');
+
+  return secretKey;
+};
+
+const secretKey = generateSecretKey();
+
+///
+///===============function to send verification email to the user==============
+const sendVerificationEmail = async (
+  email: string,
+  verificationToken: string
+) => {
   //create a nodemailer transport
 
-  const transporter = nodeMailer.createTransport({
+  const transporter = nodemailer.createTransport({
     //configure email service
     service: 'gmail',
     auth: {
@@ -68,27 +86,39 @@ const sendVerificationEmail = async (email: string, verification: string) => {
 
   //compose the email message
   const mailOptions = {
-    from: 'Julio.com',
+    from: 'Julio@gmail.com',
     to: email,
     subject: 'Email Verification',
-    text: `Please click the following link to verify your email : http://localhost:8000/verify/${verification}`,
+    text: `Please click the following link to verify your email : http://localhost:8000/verify/${verificationToken}`,
   };
 
   //send the email
   try {
-    await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions, function (error: any, info: any) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('sent', info.response);
+      }
+    });
   } catch (error) {
     console.log('error sending verification email', error);
   }
 };
 
-//endpoint to register in the app
+///
+///
+//
+///
+///=====All endpoints======================
+//
+//========endpoint to register in the app========
 app.post('/register', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
     //validate the data
-    const { error } = schema.validate({ name, email, password });
+    const { error } = RegSchema.validate({ name, email, password });
 
     if (error) {
       return res.status(400).json({
@@ -96,6 +126,7 @@ app.post('/register', async (req: Request, res: Response) => {
         message: error.details[0].message,
       });
     }
+
     //check if the email is already registered
     const existingUser = await User.findOne({ email });
 
@@ -133,12 +164,14 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 });
 
+// ==============look into verfication=============
 //endpoint to verify email
-app.get('/verify/:token', async (res: Response, req: Request) => {
+app.get('/verify/:token', async (res: any, req: Request) => {
+  const token = req.params.token as string;
+  console.log(token);
   try {
-    const token = req.params.token;
-
     //find the user with verification token
+
     const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
@@ -147,34 +180,67 @@ app.get('/verify/:token', async (res: Response, req: Request) => {
         .json({ success: false, message: 'Invalid verification token' });
     }
 
-    //mark user as verified
-    user.verified = true;
+    if (user) {
+      //mark user as verified
+      user.verified = true;
 
-    user.verificationToken = undefined;
+      user.verificationToken = undefined;
 
-    //save updated user
-    await user.save();
+      //save updated user
+      await user.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: 'Email verified successfully' });
+      res
+        .status(200)
+        .json({ success: true, message: 'Email verified successfully' });
+    }
   } catch (error) {
+    console.log('error verify', error);
     res
       .status(500)
       .json({ success: false, message: 'Email Verification failed' });
   }
 });
 
-// app.get(
-//   '/auth/google',
-//   passport.authenticate('google', { scope: ['profile'] })
-// );
+//endpoint to login User
+app.post('/login', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
 
-// app.get(
-//   '/auth/google/callback',
-//   passport.authenticate('google', { failureRedirect: '/login' }),
-//   function (req: Request, res: any) {
-//     // Successful authentication, redirect home.
-//     res.redirect('/');
-//   }
-// );
+    //validate the data
+    const { error } = logSchema.validate({ email, password });
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+
+    //check if user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    //check if the password is correct
+    if ((await bcrypt.compare(password, user.password)) === false) {
+      return res.status(402).json({ message: 'Invalid Password' });
+    }
+
+    //check if user is verified
+    if (user.verified === false) {
+      return res.status(403).json({ message: 'Verify your email' });
+    }
+
+    //generate auth token
+    const token = jwt.sign({ userId: user._id }, secretKey);
+
+    if (token) {
+      return res.status(200).json({ token });
+    }
+  } catch (error) {
+    console.log('error', error);
+    res.status(500).json({ message: 'Login Failed' });
+  }
+});

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   EnvelopeOpenIcon,
@@ -24,8 +24,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useToast } from 'react-native-toast-notifications';
 import axios from 'axios';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Prop = NativeStackScreenProps<RootStackParamList, 'Register'>;
+
+WebBrowser.maybeCompleteAuthSession();
 
 const RegisterScreen: FC<Prop> = ({ navigation }) => {
   const toast = useToast();
@@ -37,31 +42,85 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [noShowPassword, setNoShowPassword] = useState<boolean>(true);
+  const [userInfo, setUserInfo] = useState<any>();
 
-  const isFormValid = () => {
+  //google Auth
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId:
+      '14199241157-3j4oop5l0oirqdohunuke1i2b7v5lal6.apps.googleusercontent.com',
+    iosClientId:
+      '14199241157-ou7s4rt7gmcurvi3fd8ls69d6g259tp8.apps.googleusercontent.com',
+  });
+
+  const handleSignInWithGoogle = async () => {
+    const user = await AsyncStorage.getItem('@user');
+
+    if (!user) {
+      if (response?.type === 'success') {
+        await getUserInfo(response.authentication?.accessToken);
+      }
+    } else {
+      setUserInfo(JSON.parse(user));
+    }
+  };
+
+  const getUserInfo = async (token: unknown) => {
+    if (!token) return;
+    try {
+      const response = await fetch(
+        'https://www.googleapis.com/userinfo/v2/me',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const user = await response.json();
+      // await AsyncStorage.setItem('@user', JSON.stringify(user));
+      setUserInfo(user);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleSignInWithGoogle();
+  }, [response]);
+
+  const samePassword = () => {
     if (password !== confirmPassword) {
       toast.show('Password do not match', {
         type: 'warning',
         animationType: 'zoom-in',
         duration: 4000,
       });
-    } else if (
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const isFormValid = () => {
+    if (
       name &&
       name.trim() === '' &&
+      name.length > 2 &&
       email &&
       email.trim() === '' &&
+      email.length > 3 &&
       password &&
-      password.trim() === ''
+      password.trim() === '' &&
+      password.length > 7
     ) {
       toast.show('Input all fields', {
         type: 'danger',
         animationType: 'zoom-in',
         duration: 4000,
       });
+      return false;
+    } else {
+      return true;
     }
   };
-
-  isFormValid();
 
   const handleShowPassword = () => {
     setNoShowPassword(!noShowPassword);
@@ -69,44 +128,65 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
 
   //handle register
   const handleRegister = () => {
-    setLoading(true);
-    const user = {
-      name,
-      email,
-      password,
-    };
+    if (isFormValid()) {
+      if (samePassword()) {
+        setLoading(true);
 
-    //send post request to backend Api
-    axios
-      .post('http://localhost:8000/register', user)
-      .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          toast.show('Registration Successful', {
-            type: 'success',
-            animationType: 'slide-in',
-            duration: 4000,
+        const user = {
+          name: name,
+          email: email.toLowerCase(),
+          password: password,
+        };
+
+        //send post request to backend Api
+        axios
+          .post('http://localhost:8000/register', user)
+          .then((response) => {
+            console.log(response);
+            if (response.status === 200) {
+              if (response.data.message === 'Email already registered') {
+                toast.show(response.data.message, {
+                  type: 'danger',
+                  animationType: 'slide-in',
+                  duration: 4000,
+                });
+              }
+              setEmail('');
+              setLoading(false);
+              if (response.data.message === 'User registered Successfully') {
+                toast.show(response.data.message, {
+                  type: 'success',
+                  animationType: 'slide-in',
+                  duration: 4000,
+                });
+                setLoading(false);
+                setEmail('');
+                setName('');
+                setConfirmPassword('');
+                setPassWord('');
+                navigation.replace('Login');
+              }
+            }
+          })
+          .catch((error) => {
+            setLoading(false);
+            toast.show('Registration Error', {
+              type: 'danger',
+              animationType: 'zoom-in',
+              duration: 4000,
+            });
+            console.log('registration failed', error);
           });
-          setLoading(false);
-          setEmail('');
-          setName('');
-          setConfirmPassword('');
-          setPassWord('');
-          navigation.replace('Login');
-        }
-      })
-      .catch((error) => {
-        toast.show('Registration Error', {
-          type: 'danger',
-          animationType: 'zoom-in',
-          duration: 4000,
-        });
-        console.log('registration failed', error);
-      });
+      }
+    }
   };
 
   return loading ? (
-    <ActivityIndicator size='large' color='#213555' />
+    <ActivityIndicator
+      size='large'
+      color='#213555'
+      className='flex-1 justify-center items-center'
+    />
   ) : (
     <SafeAreaView className='flex-1 bg-white items-center relative'>
       <StatusBar style='dark' />
@@ -135,7 +215,7 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
               textAlign='left'
               autoComplete='name'
               className='w-80 placeholder:px-3 placeholder:py-4 text-base bg-gray-300'
-              placeholder='John Doe'
+              placeholder='Enter your name'
             />
           </View>
         </View>
@@ -143,7 +223,7 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
           <View className='flex-row items-center gap-x-3 py-2 rounded-sm '>
             <EnvelopeOpenIcon size={25} color='black' />
             <TextInput
-              onChangeText={(text) => setEmail(text)}
+              onChangeText={(text) => setEmail(text.toLowerCase())}
               value={email}
               textAlign='left'
               autoComplete='email'
@@ -243,6 +323,7 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
         </View>
 
         <TouchableOpacity
+          onPress={() => promptAsync()}
           activeOpacity={0.8}
           className='mx-auto px-7 py-4 mt-7 rounded-md w-56 shadow-lg flex-row items-center justify-between  bg-blue-950 '
         >

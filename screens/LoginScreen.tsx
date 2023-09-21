@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   SafeAreaView,
@@ -20,19 +21,98 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useToast } from 'react-native-toast-notifications';
 
 type Prop = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: FC<Prop> = ({ navigation }) => {
+  const toast = useToast();
+
   const [email, setEmail] = useState<string>();
   const [password, setPassWord] = useState<string>();
   const [noShowPassword, setNoShowPassword] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleShowPassword = () => {
     setNoShowPassword(!noShowPassword);
   };
 
-  return (
+  const handleLogin = () => {
+    setLoading(true);
+    const user = { email: email?.toLowerCase(), password: password };
+
+    axios
+      .post('http://localhost:8000/login', user)
+      .then((response) => {
+        console.log(response);
+
+        const token = response.data.token;
+
+        if (token) {
+          toast.show('Login Successful', {
+            type: 'success',
+            animationType: 'zoom-in',
+            duration: 5000,
+          });
+
+          AsyncStorage.setItem('authToken', token);
+
+          navigation.navigate('Main');
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        if (error.response?.status === 401) {
+          toast.show('Invalid email or password', {
+            type: 'danger',
+            animationType: 'slide-in',
+            duration: 5000,
+          });
+
+          setEmail('');
+          setPassWord('');
+          setLoading(false);
+        }
+
+        if (error.response?.status === 402) {
+          toast.show('Invalid password', {
+            type: 'danger',
+            animationType: 'slide-in',
+            duration: 5000,
+          });
+
+          setPassWord('');
+          setLoading(false);
+        }
+
+        if (error.response?.status === 403) {
+          toast.show('Verify your email', {
+            type: 'warning',
+            animationType: 'zoom-in',
+            duration: 5000,
+          });
+          setLoading(false);
+        }
+
+        toast.show('Login failed', {
+          type: 'danger',
+          animationType: 'zoom-in',
+          duration: 5000,
+        });
+        console.log(`error ${error.response?.status} login`);
+        setLoading(false);
+      });
+  };
+
+  return loading ? (
+    <ActivityIndicator
+      size='large'
+      color='#213555'
+      className='flex-1 justify-center items-center'
+    />
+  ) : (
     <SafeAreaView className='flex-1 bg-white items-center'>
       <StatusBar style='dark' />
       <View>
@@ -105,6 +185,7 @@ const LoginScreen: FC<Prop> = ({ navigation }) => {
 
         {/* login button  */}
         <TouchableOpacity
+          onPress={handleLogin}
           activeOpacity={0.8}
           className='mx-auto p-3 rounded-md w-56 shadow-lg flex-row items-center justify-center  bg-blue-950 '
         >
