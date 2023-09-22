@@ -1,7 +1,10 @@
+import { ProductInfo } from '../components/types';
+
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   Main: undefined;
+  ProductInfo: ProductInfo;
 };
 
 export type TabStackParamList = {

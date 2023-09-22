@@ -19,6 +19,7 @@ import {
 } from 'react-native-heroicons/outline';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
+import ProductInfoScreen from '../screens/ProductInfoScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -31,13 +32,13 @@ const BottomTabs = () => {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarLabelStyle: { color: '#008E97' },
+          tabBarLabelStyle: { color: 'rgba(30 58 138/1)' },
           headerShown: false,
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <HomeSolid color='#008E97' />
+              <HomeSolid color='rgba(30 58 138/1)' />
             ) : (
-              <HomeOutline color='#008E97' />
+              <HomeOutline color='rgba(96 165 250/1)' />
             ),
         }}
       />
@@ -46,13 +47,13 @@ const BottomTabs = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarLabelStyle: { color: '#008E97' },
+          tabBarLabelStyle: { color: 'rgba(30 58 138/1)' },
           headerShown: false,
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <UserSolid color='#008E97' />
+              <UserSolid color='rgba(30 58 138/1)' />
             ) : (
-              <UserOutline color='#008E97' />
+              <UserOutline color='rgba(96 165 250/1)' />
             ),
         }}
       />
@@ -61,13 +62,13 @@ const BottomTabs = () => {
         component={CartScreen}
         options={{
           tabBarLabel: 'Cart',
-          tabBarLabelStyle: { color: '#008E97' },
+          tabBarLabelStyle: { color: 'rgba(30 58 138/1)' },
           headerShown: false,
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ShoppingSolid color='#008E97' />
+              <ShoppingSolid color='rgba(30 58 138/1)' />
             ) : (
-              <ShoppingOutline color='#008E97' />
+              <ShoppingOutline color='rgba(96 165 250/1)' />
             ),
         }}
       />
@@ -93,6 +94,11 @@ const StackNavigation = () => {
           <Stack.Screen
             name='Main'
             component={BottomTabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='ProductInfo'
+            component={ProductInfoScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

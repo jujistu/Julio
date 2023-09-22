@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   ArrowLongRightIcon,
@@ -38,6 +38,22 @@ const LoginScreen: FC<Prop> = ({ navigation }) => {
   const handleShowPassword = () => {
     setNoShowPassword(!noShowPassword);
   };
+
+  //check if loggedIn
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+
+        if (token) {
+          navigation.replace('Main');
+        }
+      } catch (error) {
+        console.log('error login', error);
+      }
+    };
+    checkLoginStatus();
+  }, []);
 
   const handleLogin = () => {
     setLoading(true);
