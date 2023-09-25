@@ -7,3 +7,5 @@ toast notification
 axios
 react native image slider box
 react native drop down picker for categories choosing
+redux toolkit
+react native modals

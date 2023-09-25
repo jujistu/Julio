@@ -1,5 +1,5 @@
 import StackNavigation from './navigation/StackNavigation';
-import { ToastProvider } from 'react-native-toast-notifications';
+import React from 'react';
 
 export default function App() {
   return <StackNavigation />;
