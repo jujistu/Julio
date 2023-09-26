@@ -11,7 +11,6 @@ import {
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { MapPinIcon } from 'react-native-heroicons/outline';
 import {
-  ChevronDownIcon,
   MapPinIcon as MapPinSolid,
   ViewfinderCircleIcon,
 } from 'react-native-heroicons/solid';
@@ -32,6 +31,10 @@ import {
   ModalContent,
   SlideAnimation,
 } from 'react-native-modals';
+import { ChevronDownIcon } from 'react-native-heroicons/mini';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUserContext } from '../context/UserContext';
+import jwtDecode from 'jwt-decode';
 
 export type ProductProps = NativeStackScreenProps<
   RootStackParamList,
@@ -44,6 +47,12 @@ const HomeScreen: FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const navigation = useNavigation<ProductProps['navigation']>();
+
+  const { setUserId, userId } = useUserContext();
+
+  const [selectedAddress, setSelectedAddress] = useState<any>('');
+
+  const [addresses, setAddresses] = useState<any[]>([]);
 
   const [products, setProducts] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
@@ -59,6 +68,49 @@ const HomeScreen: FC = () => {
   const onOpen = useCallback(() => {
     setOpen(true);
   }, []);
+
+  console.log('select', selectedAddress);
+
+  //to get userID
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+
+      if (token) {
+        const decodedToken: any = jwtDecode(token);
+
+        const userId = decodedToken.userId;
+
+        setUserId(userId);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // console.log('user', userId);
+
+  //fetch address
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/addresses/${userId}`
+      );
+
+      const { addresses } = response.data;
+
+      setAddresses(addresses);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchAddresses();
+    }
+  }, [userId, modalVisible]);
+
+  // console.log('address', addresses);
 
   //Redux
   // const cart = useAppSelector((state) => state.cart.cart);
@@ -95,9 +147,16 @@ const HomeScreen: FC = () => {
           >
             <MapPinIcon size={29} color={'black'} />
             <Pressable>
-              <Text className='font-medium text-base pl-2 pr-1 tracking-tighter'>
-                Deliver to Paschal - Nigeria 100284
-              </Text>
+              {selectedAddress ? (
+                <Text className='font-medium text-base pl-2 pr-1 tracking-tighter'>
+                  Deliver to {selectedAddress?.name} - {selectedAddress?.city}{' '}
+                  {selectedAddress?.postalCode}{' '}
+                </Text>
+              ) : (
+                <Text className='font-medium text-base pl-2 pr-1 tracking-tighter'>
+                  Add an Address
+                </Text>
+              )}
             </Pressable>
             <ChevronDownIcon color={'black'} size={18} />
           </Pressable>
@@ -276,11 +335,40 @@ const HomeScreen: FC = () => {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {/* already added address */}
+            {addresses.map((item, index) => (
+              <TouchableOpacity
+                onPress={() => setSelectedAddress(item)}
+                activeOpacity={0.4}
+                key={index}
+                className={`h-36 w-36 border-gray-200 mt-2.5 border p-2.5 justify-center items-center mr-3.5 ${
+                  selectedAddress === item ? 'bg-orange-300' : 'bg-white'
+                }`}
+              >
+                <View className='flex-row items-center gap-1'>
+                  <Text className='text-sm font-bold tracking-wide'>
+                    {item?.name}
+                  </Text>
+                  <MapPinSolid size={22} color='red' />
+                </View>
+
+                <Text numberOfLines={1} className='w-32 text-xs text-center'>
+                  {item?.houseNo}, {item?.landmark}
+                </Text>
+
+                <Text numberOfLines={1} className='w-32 text-xs text-center'>
+                  {item?.street}
+                </Text>
+
+                <Text numberOfLines={1} className='w-32 text-sm text-center'>
+                  {item?.country}, {item?.city}
+                </Text>
+              </TouchableOpacity>
+            ))}
 
             <Pressable
               onPress={() => {
                 setModalVisible(false);
-                navigation.navigate('AddAddress');
+                navigation.navigate('Address');
               }}
               className='h-36 w-36 border-gray-200 mt-2.5 border p-2.5 justify-center items-center'
             >

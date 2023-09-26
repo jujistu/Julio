@@ -9,3 +9,5 @@ react native image slider box
 react native drop down picker for categories choosing
 redux toolkit
 react native modals
+jwt for authentication
+jwt decode for authorization add address

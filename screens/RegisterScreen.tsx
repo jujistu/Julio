@@ -243,6 +243,9 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
               secureTextEntry={noShowPassword}
               className='w-80 placeholder:px-3 placeholder:py-4 bg-gray-300 text-base'
               placeholder='password'
+              passwordRules={
+                'required: upper; required: lower; required: digit; max-consecutive: 2; minlength: 8;'
+              }
             />
             {noShowPassword ? (
               <TouchableOpacity
@@ -272,6 +275,9 @@ const RegisterScreen: FC<Prop> = ({ navigation }) => {
               secureTextEntry={noShowPassword}
               className='w-80 placeholder:px-3 placeholder:py-4 bg-gray-300 text-base'
               placeholder='confirm password'
+              passwordRules={
+                'required: upper; required: lower; required: digit; max-consecutive: 2; minlength: 8;'
+              }
             />
             {noShowPassword ? (
               <TouchableOpacity

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 //Imports
 const express = require('express');
@@ -14,20 +14,21 @@ const joi = require('joi');
 
 require('dotenv').config();
 
-//models imports
-const User = require('./models/users');
-const Order = require('./models/order');
-
 //Initialization
 const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 const port: number = 8000;
 
 const connectionUrl = process.env.connection_Url as string;
 
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+//models imports
+const User = require('./models/users');
+const Order = require('./models/order');
 
 //configure database
 mongoose
@@ -164,6 +165,8 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 });
 
+//
+//
 // ==============look into verfication=============
 //endpoint to verify email
 app.get('/verify/:token', async (res: any, req: Request) => {
@@ -201,6 +204,8 @@ app.get('/verify/:token', async (res: any, req: Request) => {
   }
 });
 
+//
+//
 //endpoint to login User
 app.post('/login', async (req: Request, res: Response) => {
   try {
@@ -242,5 +247,56 @@ app.post('/login', async (req: Request, res: Response) => {
   } catch (error) {
     console.log('error', error);
     res.status(500).json({ message: 'Login Failed' });
+  }
+});
+
+//
+//
+//
+//=====endpoint to store a new address======
+app.post('/addresses', async (req: Request, res: Response) => {
+  try {
+    const { userId, address } = req.body;
+
+    console.log('address', address);
+
+    // find the user by the userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    //add the new address to the user's addresses array
+    user.addresses.push(address);
+
+    //save updated user address in DB
+    await user.save();
+
+    res.status(200).json({ message: 'Address created Successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error adding address' });
+  }
+});
+
+//
+//
+//=====endpoint to get all the addresses of a user
+app.get('/addresses/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const addresses = user.addresses;
+
+    return res.status(200).json({ addresses });
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving the addresses' });
   }
 });

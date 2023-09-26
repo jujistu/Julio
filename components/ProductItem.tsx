@@ -27,7 +27,7 @@ const ProductItem: FC<ProductData> = ({ item }) => {
 
   const price = item?.price * 970;
   const formattedPrice = price.toLocaleString(undefined, {
-    maximumFractionDigits: 1,
+    maximumFractionDigits: 0,
   });
 
   return (

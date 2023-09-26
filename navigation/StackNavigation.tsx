@@ -24,6 +24,8 @@ import store from '../redux/store/Store';
 import { Provider } from 'react-redux';
 import { ModalPortal } from 'react-native-modals';
 import AddAddress from '../screens/AddAddress';
+import Address from '../screens/Address';
+import { UserContext } from '../context/UserContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -83,38 +85,45 @@ const BottomTabs = () => {
 const StackNavigation: FC = () => {
   return (
     <Provider store={store}>
-      <ToastProvider swipeEnabled={true} placement='top' offset={30}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name='Login'
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='Register'
-              component={RegisterScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='Main'
-              component={BottomTabs}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='ProductInfo'
-              component={ProductInfoScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='AddAddress'
-              component={AddAddress}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ToastProvider>
-      <ModalPortal />
+      <UserContext>
+        <ToastProvider swipeEnabled={true} placement='top' offset={30}>
+          <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                name='Login'
+                component={LoginScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='Register'
+                component={RegisterScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='Main'
+                component={BottomTabs}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='ProductInfo'
+                component={ProductInfoScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='Address'
+                component={AddAddress}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='AddAddress'
+                component={Address}
+                options={{ headerShown: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ToastProvider>
+        <ModalPortal />
+      </UserContext>
     </Provider>
   );
 };
