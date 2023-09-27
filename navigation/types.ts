@@ -7,6 +7,7 @@ export type RootStackParamList = {
   ProductInfo: ProductInfo;
   Address: undefined;
   AddAddress: undefined;
+  Confirmation: undefined;
 };
 
 export type TabStackParamList = {

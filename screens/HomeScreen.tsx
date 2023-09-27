@@ -207,6 +207,7 @@ const HomeScreen: FC = () => {
                     color: item.color,
                     size: item.size,
                     item: item,
+                    selectedAddress,
                   })
                 }
                 key={index}
@@ -242,6 +243,7 @@ const HomeScreen: FC = () => {
                     color: item.color,
                     size: item.size,
                     item: item,
+                    selectedAddress: selectedAddress,
                   })
                 }
                 key={index}

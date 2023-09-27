@@ -26,6 +26,7 @@ import { ModalPortal } from 'react-native-modals';
 import AddAddress from '../screens/AddAddress';
 import Address from '../screens/Address';
 import { UserContext } from '../context/UserContext';
+import ConfirmationScreen from '../screens/ConfirmationScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -117,6 +118,11 @@ const StackNavigation: FC = () => {
               <Stack.Screen
                 name='AddAddress'
                 component={Address}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='Confirmation'
+                component={ConfirmationScreen}
                 options={{ headerShown: false }}
               />
             </Stack.Navigator>

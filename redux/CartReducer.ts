@@ -11,33 +11,37 @@ export const CartSlice = createSlice({
   } as CounterState,
   reducers: {
     addToCart: (state, action: PayloadAction<any>) => {
-      const itemPresent = state.cart.find((item) => {
-        item.id === action.payload.id;
-      });
+      const itemPresent = state.cart.find(
+        (item) => item.id === action.payload.id
+      );
 
       if (itemPresent) {
         itemPresent.quantity++;
       } else {
-        state.cart.push({ ...action.payload, quantity: 1 });
+        state.cart.push({
+          ...action.payload,
+          quantity: 1,
+        });
       }
+
+      // Return a new state object to ensure immutability
+      return state;
     },
     removeFromCart: (state, action) => {
-      const removeItem = state.cart.filter((item) => {
-        item.id !== action.payload.id;
-        state.cart = removeItem;
-      });
+      // Use filter to create a new cart array without the item to be removed
+      state.cart = state.cart.filter((item) => item.id !== action.payload.id);
     },
     incrementQuantity: (state, action) => {
-      const itemPresent = state.cart.find((item) => {
-        item.id === action.payload.id;
-      });
+      const itemPresent = state.cart.find(
+        (item) => item.id === action.payload.id
+      );
 
       itemPresent.quantity++;
     },
     decrementQuantity: (state, action) => {
-      const itemPresent = state.cart.find((item) => {
-        item.id === action.payload.id;
-      });
+      const itemPresent = state.cart.find(
+        (item) => item.id === action.payload.id
+      );
 
       if (itemPresent.quantity === 1) {
         itemPresent.quantity = 0;

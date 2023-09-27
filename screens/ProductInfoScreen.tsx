@@ -14,6 +14,7 @@ import { HeartIcon } from 'react-native-heroicons/outline';
 import { useAppDispatch, useAppSelector } from '../redux/Hooks';
 import { addToCart } from '../redux/CartReducer';
 import { useToast } from 'react-native-toast-notifications';
+import { formattedPrice } from '../hooks/Helpers';
 
 const { width } = Dimensions.get('window');
 const height = (width * 100) / 100;
@@ -25,11 +26,11 @@ const ProductInfoScreen: FC<ProductProps> = ({ route }) => {
 
   //data passed from homeScreen
   const data = route.params.item;
-  console.log(data);
 
-  //Redux
-  const cart = useAppSelector((state) => state.cart.cart);
-  console.log('cart', cart);
+  const formatPrice = formattedPrice(route.params.price);
+
+  const selectedAddress = route.params.selectedAddress;
+  console.log(data);
 
   const dispatch = useAppDispatch();
 
@@ -93,7 +94,7 @@ const ProductInfoScreen: FC<ProductProps> = ({ route }) => {
         <Text className='font-medium tracking-wider text-base'>
           {data.title}
         </Text>
-        <Text className='font-bold text-lg mt-2'>₦{data.price}</Text>
+        <Text className='font-bold text-lg mt-2'>₦{formatPrice}</Text>
       </View>
 
       {/* border  */}
@@ -112,7 +113,7 @@ const ProductInfoScreen: FC<ProductProps> = ({ route }) => {
       <View className='h-1 border-2 border-gray-200' />
 
       <View className='p-3'>
-        <Text className='font-bold text-base my-1'>Total: ${data.price}</Text>
+        <Text className='font-bold text-base my-1'>Total: ₦{formatPrice}</Text>
         <Text className='text-blue-500 mb-1'>
           FREE delivery Tomorrow by 3 PM.Order within 10hrs 30 mins
         </Text>
@@ -120,7 +121,8 @@ const ProductInfoScreen: FC<ProductProps> = ({ route }) => {
         <View className='flex-row my-2 items-center gap-2'>
           <MapPinIcon color='black' size={25} />
           <Text className='font-medium text-base'>
-            Deliver to Paschal - Nigeria 100284
+            Deliver to {selectedAddress?.name} - {selectedAddress?.country}{' '}
+            {selectedAddress?.postalCode}
           </Text>
         </View>
       </View>

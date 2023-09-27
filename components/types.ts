@@ -16,10 +16,11 @@ export type ProductData = {
 export type ProductInfo = {
   id: number;
   title: string;
-  price: string;
+  price: number;
   carouselImages: any;
   color: string;
   size: string;
   oldPrice: string;
   item: any;
+  selectedAddress: any;
 };

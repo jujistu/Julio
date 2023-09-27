@@ -4,6 +4,7 @@ import { ProductData } from './types';
 import { useAppDispatch } from '../redux/Hooks';
 import { addToCart } from '../redux/CartReducer';
 import { useToast } from 'react-native-toast-notifications';
+import { formattedPrice } from '../hooks/Helpers';
 
 const ProductItem: FC<ProductData> = ({ item }) => {
   const toast = useToast();
@@ -25,10 +26,7 @@ const ProductItem: FC<ProductData> = ({ item }) => {
     }, 6000);
   };
 
-  const price = item?.price * 970;
-  const formattedPrice = price.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
-  });
+  const price = formattedPrice(item?.price);
 
   return (
     <TouchableOpacity className='mx-2 my-5' activeOpacity={0.8}>
@@ -43,7 +41,7 @@ const ProductItem: FC<ProductData> = ({ item }) => {
       </Text>
 
       <View className='flex-row items-center justify-between mt-1'>
-        <Text className='font-bold text-base'>₦{formattedPrice}</Text>
+        <Text className='font-bold text-base'>₦{price}</Text>
         <Text className='font-bold text-orange-500 mr-4'>
           <Text className='text-xs pb-1'>⭐️</Text>
           {item?.rating?.rate}

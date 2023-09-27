@@ -47,7 +47,7 @@ export const deals = [
     id: 0,
     title: 'ADIDAS Originals Sneakers Superstar',
     oldPrice: '127,000',
-    price: '38,370',
+    price: 38370 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/05/478768/1.jpg?5325',
     carouselImages: [
@@ -63,7 +63,7 @@ export const deals = [
     id: 1,
     title: 'Samsung Galaxy A24',
     oldPrice: '205,000',
-    price: '184,000',
+    price: 184000 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/13/6027932/1.jpg?4763',
     carouselImages: [
@@ -78,7 +78,7 @@ export const deals = [
     id: 2,
     title: 'Apple IPhone 14 Pro Max',
     oldPrice: '2,999,999',
-    price: '1,009,999',
+    price: 1009999 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/10/2077002/1.jpg?3840',
     carouselImages: [
@@ -94,7 +94,7 @@ export const deals = [
     id: 3,
     title: 'Maxi Key-Start Generator',
     oldPrice: '300,000',
-    price: '241,200',
+    price: 241200 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/13/995863/1.jpg?4602',
     carouselImages: [
@@ -110,7 +110,7 @@ export const deals = [
     id: 4,
     title: 'BLUETTI EB70 LiFePo4 Portable Solar Generator',
     oldPrice: '800,000',
-    price: '644,500',
+    price: 644500 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/64/2478442/1.jpg?4985',
     carouselImages: [
@@ -126,7 +126,7 @@ export const deals = [
     id: 5,
     title: 'Hp 255 G8 AMD Ryzen',
     oldPrice: '250,000',
-    price: '226,000',
+    price: 226000 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/14/6115122/1.jpg?9470',
     carouselImages: [
@@ -142,7 +142,7 @@ export const deals = [
     id: 6,
     title: 'Infinix Note 30 Pro',
     oldPrice: '335,000',
-    price: '216,800',
+    price: 216800 / 970,
     image:
       'https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/72/3133942/1.jpg?7671',
     carouselImages: [
@@ -161,7 +161,7 @@ export const offers = [
     id: 0,
     title: 'Razer DeathAdder Essential Gaming Mouse',
     oldPrice: '29,000',
-    price: '24,000',
+    price: 24000 / 970,
     image: 'https://m.media-amazon.com/images/I/8189uwDnMkL._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/612ydhRz3XS._AC_SX679_.jpg',
@@ -177,7 +177,7 @@ export const offers = [
     id: 1,
     title: 'Dowinx Gaming Chair with Pocket Spring Cushion',
     oldPrice: '179,000',
-    price: '108,000',
+    price: 108000 / 970,
     image: 'https://m.media-amazon.com/images/I/814P2k1A4TL._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/619T3S1zvIL._AC_SY879_.jpg',
@@ -193,7 +193,7 @@ export const offers = [
     id: 2,
     title: 'LG Ultragear QHD Gaming Monitor',
     oldPrice: '527,000',
-    price: '399,000',
+    price: 399000 / 970,
     image: 'https://m.media-amazon.com/images/I/81El4887iLL._AC_SX679_.jpg',
     carouselImages: [
       'https://cdn.thewirecutter.com/wp-content/media/2023/07/4kmonitors-2048px-9794.jpg',
@@ -209,7 +209,7 @@ export const offers = [
     id: 3,
     title: 'Apple AirPods Pro (2nd Gen) Wireless Earbuds',
     oldPrice: '250,000',
-    price: '199,000',
+    price: 199000 / 970,
     image: 'https://m.media-amazon.com/images/I/617I3mDGmTL._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/61f1YfTkTDL._AC_SX679_.jpg',
@@ -225,7 +225,7 @@ export const offers = [
     id: 4,
     title: 'Amazon Basics 8 Sheet Cross Cut Paper Shredder',
     oldPrice: '54,000',
-    price: '31,000',
+    price: 31000 / 970,
     image: 'https://m.media-amazon.com/images/I/81vKaylqd6L._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/81lCKE7OCSL._AC_SX679_.jpg',
@@ -241,7 +241,7 @@ export const offers = [
     id: 5,
     title: 'Bluetooth Headphones Wireless Earbuds',
     oldPrice: '58,000',
-    price: '37,000',
+    price: 37000 / 970,
     image: 'https://m.media-amazon.com/images/I/71BX37M4i+L._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/71fywoP3i-L._AC_SX679_.jpg',
