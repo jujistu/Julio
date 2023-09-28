@@ -18,13 +18,11 @@ import { deals, images, list, offers } from '../utils/Constants';
 import { FlatListSlider } from '@kuasha420/react-native-flatlist-slider';
 import axios from 'axios';
 import ProductItem from '../components/ProductItem';
-
 import DropDownPicker from 'react-native-dropdown-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/core';
 import SearchBar from '../components/SearchBar';
-import { useAppSelector } from '../redux/Hooks';
 import {
   Backdrop,
   BottomModal,
@@ -32,9 +30,8 @@ import {
   SlideAnimation,
 } from 'react-native-modals';
 import { ChevronDownIcon } from 'react-native-heroicons/mini';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserContext } from '../context/UserContext';
-import jwtDecode from 'jwt-decode';
+import { fetchAddresses, fetchUser } from '../hooks/Helpers';
 
 export type ProductProps = NativeStackScreenProps<
   RootStackParamList,
@@ -56,9 +53,9 @@ const HomeScreen: FC = () => {
 
   const [products, setProducts] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
-  const [category, setCategory] = useState<string>('See all');
+  const [category, setCategory] = useState<string>('All');
   const [items, setItems] = useState([
-    { label: 'See all', value: 'See all' },
+    { label: 'All', value: 'All' },
     { label: "Men's clothing", value: "men's clothing" },
     { label: 'Jewelery', value: 'jewelery' },
     { label: 'Electronics', value: 'electronics' },
@@ -69,52 +66,25 @@ const HomeScreen: FC = () => {
     setOpen(true);
   }, []);
 
-  console.log('select', selectedAddress);
+  // console.log('select', selectedAddress);
 
   //to get userID
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = await AsyncStorage.getItem('authToken');
-
-      if (token) {
-        const decodedToken: any = jwtDecode(token);
-
-        const userId = decodedToken.userId;
-
-        setUserId(userId);
-      }
-    };
-    fetchUser();
+    fetchUser(setUserId);
   }, []);
 
   // console.log('user', userId);
 
   //fetch address
-  const fetchAddresses = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/addresses/${userId}`
-      );
-
-      const { addresses } = response.data;
-
-      setAddresses(addresses);
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
+  fetchAddresses(setAddresses, userId);
 
   useEffect(() => {
     if (userId) {
-      fetchAddresses();
+      fetchAddresses(setAddresses, userId);
     }
   }, [userId, modalVisible]);
 
   // console.log('address', addresses);
-
-  //Redux
-  // const cart = useAppSelector((state) => state.cart.cart);
-  // console.log('cart', cart);
 
   ////
   //fakeStore api
@@ -295,7 +265,7 @@ const HomeScreen: FC = () => {
               ?.filter((item) => {
                 const filteredList = item.category === category;
 
-                const allList = category === 'See all';
+                const allList = category === 'All';
 
                 if (filteredList) {
                   return filteredList;

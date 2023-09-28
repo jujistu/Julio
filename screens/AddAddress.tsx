@@ -5,7 +5,7 @@ import {
   Pressable,
   TouchableOpacity,
 } from 'react-native';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import { ChevronRightIcon } from 'react-native-heroicons/mini';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,6 +13,9 @@ import { RootStackParamList } from '../navigation/types';
 import { useUserContext } from '../context/UserContext';
 import axios from 'axios';
 import { MapPinIcon } from 'react-native-heroicons/solid';
+import { useFocusEffect } from '@react-navigation/native';
+import { fetchAddresses } from '../hooks/Helpers';
+import AddressesView from '../components/AddressesView';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Address'>;
 
@@ -22,23 +25,31 @@ const AddAddress: FC<Props> = ({ navigation }) => {
   const { setUserId, userId } = useUserContext();
 
   //fetch address
-  const fetchAddresses = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/addresses/${userId}`
-      );
 
-      const { addresses } = response.data;
+  // const fetchAddresses = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:8000/addresses/${userId}`
+  //     );
 
-      setAddresses(addresses);
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
+  //     const { addresses } = response.data;
+
+  //     setAddresses(addresses);
+  //   } catch (error) {
+  //     console.log('error', error);
+  //   }
+  // };
 
   useEffect(() => {
-    fetchAddresses();
+    fetchAddresses(setAddresses, userId);
   }, []);
+
+  //this is to update the UI with the added address as the screen gets displayed i.e when we go back
+  useFocusEffect(
+    useCallback(() => {
+      fetchAddresses(setAddresses, userId);
+    }, [])
+  );
 
   // console.log('address', addresses);
   // console.log('user', userId);
@@ -65,46 +76,9 @@ const AddAddress: FC<Props> = ({ navigation }) => {
             <TouchableOpacity
               key={index}
               activeOpacity={0.6}
-              className='border border-gray-300 p-2.5 flex-col gap-1 my-2.5'
+              className='border border-gray-300 p-2.5 flex-col gap-1 my-2'
             >
-              <View className='flex-row items-center gap-1'>
-                <Text className='text-base tracking-wide font-bold'>
-                  {item?.name}
-                </Text>
-                <MapPinIcon size={24} color='red' />
-              </View>
-
-              <Text className='text-base text-slate-900 tracking-tight'>
-                {item?.houseNo}, {item?.landmark}
-              </Text>
-
-              <Text className='text-base text-slate-900'>{item?.street}</Text>
-
-              <Text className='text-base text-slate-900 tracking-wide'>
-                {item?.country}, {item?.city}
-              </Text>
-
-              <Text className='text-base text-slate-900 tracking-wide'>
-                Phone No: {item?.mobileNo}
-              </Text>
-
-              <Text className='text-base text-slate-900 tracking-wide'>
-                Postal code: {item?.postalCode}
-              </Text>
-
-              <View className='flex-row items-center gap-2.5 mt-2'>
-                <TouchableOpacity className='bg-white px-2.5 py-1.5 rounded-md border border-gray-200'>
-                  <Text>Edit</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity className='bg-white px-2.5 py-1.5 rounded-md border border-gray-200'>
-                  <Text>remove</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity className='bg-white px-2.5 py-1.5 rounded-md border border-gray-200'>
-                  <Text>set as Default</Text>
-                </TouchableOpacity>
-              </View>
+              <AddressesView item={item} />
             </TouchableOpacity>
           ))}
         </Pressable>

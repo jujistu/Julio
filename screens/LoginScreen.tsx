@@ -233,7 +233,7 @@ const LoginScreen: FC<Prop> = ({ navigation }) => {
 
         <TouchableOpacity
           activeOpacity={0.8}
-          className='mx-auto px-5 py-3 mt-7 rounded-md w-56 shadow-lg flex-row items-center justify-around  bg-blue-950 '
+          className='mx-auto px-5 py-3 mt-7 rounded-md w-56 shadow-lg flex-row items-center justify-around  bg-blue-950'
         >
           <Text className='text-center font-bold text-white gap-x-2 text-lg tracking-tight'>
             Sign In with Google
