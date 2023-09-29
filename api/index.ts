@@ -19,8 +19,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 
 const port: number = 8000;
 
@@ -67,6 +65,19 @@ const generateSecretKey = () => {
 };
 
 const secretKey = generateSecretKey();
+
+////
+////
+//format price
+const formattedPrice = (price: number) => {
+  const initialPrice = price * 970;
+
+  const formattedPrice = initialPrice.toLocaleString(undefined, {
+    maximumFractionDigits: 0,
+  });
+
+  return formattedPrice;
+};
 
 ///
 ///===============function to send verification email to the user==============
@@ -167,7 +178,7 @@ app.post('/register', async (req: Request, res: Response) => {
 
 //
 //
-// ==============look into verfication=============
+// ==============look into verification=============
 //endpoint to verify email
 app.get('/verify/:token', async (res: any, req: Request) => {
   const token = req.params.token as string;
@@ -298,5 +309,87 @@ app.get('/addresses/:userId', async (req: Request, res: Response) => {
     return res.status(200).json({ addresses });
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving the addresses' });
+  }
+});
+
+///
+///
+///
+//endpoint to store all the orders
+app.post('/orders', async (req: Request, res: Response) => {
+  try {
+    const { userId, cartItems, totalPrice, shippingAddress, paymentMethod } =
+      req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    //create an array of product objects from the cart Items required in Orders schema
+    const products = cartItems.map((item: any) => ({
+      name: item?.title,
+      quantity: item?.quantity,
+      price: formattedPrice(item?.price),
+      image: item?.image,
+    }));
+
+    //create a new Order
+    const order = new Order({
+      user: userId,
+      products,
+      totalPrice,
+      shippingAddress,
+      paymentMethod,
+    });
+
+    await order.save();
+
+    res.status(200).json({ message: 'Order created successfully!' });
+  } catch (error) {
+    console.log('error creating orders', error);
+    res.status(500).json({ message: 'Error creating orders' });
+  }
+});
+
+////
+////
+////
+//get the user profile
+app.get('/profile/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    //send the user details
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving the user profile' });
+  }
+});
+
+////
+////
+////
+//get order for a particular User
+app.get('/orders/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+
+    //getting orders and compiling
+    const orders = await Order.find({ user: userId }).populate('user');
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this user' });
+    }
+
+    res.status(200).json({ orders });
+  } catch (error) {
+    res.status(500).json({ message: 'Error' });
   }
 });

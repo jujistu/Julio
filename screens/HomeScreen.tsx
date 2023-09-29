@@ -76,8 +76,6 @@ const HomeScreen: FC = () => {
   // console.log('user', userId);
 
   //fetch address
-  fetchAddresses(setAddresses, userId);
-
   useEffect(() => {
     if (userId) {
       fetchAddresses(setAddresses, userId);

@@ -5,26 +5,85 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
-import React, { Fragment, useState } from 'react';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import React, { FC, useState } from 'react';
 import { steps } from '../utils/Constants';
-import { fetchAddresses } from '../hooks/Helpers';
+import { fetchAddresses, formattedPrice } from '../hooks/Helpers';
 import { useUserContext } from '../context/UserContext';
 import AddressesView from '../components/AddressesView';
 import { faCircle, faCircleDot } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { ChevronRightIcon } from 'react-native-heroicons/mini';
+import { useAppDispatch, useAppSelector } from '../redux/Hooks';
+import axios from 'axios';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+import { useToast } from 'react-native-toast-notifications';
+import { clearCart } from '../redux/CartReducer';
 
-const ConfirmationScreen = () => {
+type Prop = NativeStackScreenProps<RootStackParamList, 'Confirmation'>;
+
+const ConfirmationScreen: FC<Prop> = ({ navigation }) => {
+  const toast = useToast();
+
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const [addresses, setAddresses] = useState([]);
 
-  const [selectedAddress, setSelectedAddress] = useState<any>();
+  const [selectedAddress, setSelectedAddress] = useState<any>(); //for address
+
+  const [option, setOption] = useState<boolean>(false); //for delivery
+
+  const [selectedOption, setSelectedOption] = useState<string>(''); //for payment method
 
   const { setUserId, userId } = useUserContext();
 
   fetchAddresses(setAddresses, userId);
+
+  const dispatch = useAppDispatch();
+
+  const cart = useAppSelector((state) => state.cart.cart);
+
+  const total = cart
+    ?.map((item) => item.quantity * item.price)
+    .reduce((cur, prev) => cur + prev, 0);
+
+  const formattedTotal = formattedPrice(total);
+
+  //Place order button
+  const handlePlaceOrder = async () => {
+    try {
+      const orderData = {
+        userId,
+        cartItems: cart,
+        totalPrice: formattedTotal,
+        shippingAddress: selectedAddress,
+        paymentMethod: selectedOption,
+      };
+
+      const response = await axios.post(
+        'http://localhost:8000/orders',
+        orderData
+      );
+
+      if (response.status === 200) {
+        toast.show(response.data.message, {
+          type: 'success',
+          animationType: 'zoom-in',
+          duration: 5000,
+        });
+        navigation.navigate('OrderScreen');
+        dispatch(clearCart());
+      } else {
+        console.log('error Order', response.data);
+      }
+    } catch (error) {
+      toast.show('Error creating Order', {
+        type: 'danger',
+        animationType: 'slide-in',
+        duration: 6000,
+      });
+    }
+  };
 
   return (
     <ScrollView className='mt-14'>
@@ -41,7 +100,7 @@ const ConfirmationScreen = () => {
               )}
               <View
                 className={`w-7 h-7 rounded-2xl  bg-[#225372d9] justify-center items-center ${
-                  index < currentStep && 'bg-green-500'
+                  index < currentStep && 'bg-green-800'
                 }`}
               >
                 {index < currentStep ? (
@@ -109,6 +168,165 @@ const ConfirmationScreen = () => {
               </Pressable>
             ))}
           </TouchableOpacity>
+        </View>
+      )}
+
+      {/* step 2 delivery */}
+      {currentStep === 1 && (
+        <View className='mx-5'>
+          <Text className='text-xl font-bold tracking-tight'>
+            Choose your delivery options
+          </Text>
+          <View className='flex-row items-center bg-white border border-gray-200 p-2 gap-1.5 mt-2.5 mb-2.5'>
+            {option ? (
+              <Pressable onPress={() => setOption(!option)}>
+                <FontAwesomeIcon
+                  icon={faCircleDot}
+                  color='#225372d9'
+                  size={20}
+                />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => setOption(!option)}>
+                <FontAwesomeIcon icon={faCircle} color='#225372d9' size={20} />
+              </Pressable>
+            )}
+
+            <Text className='flex-1'>
+              <Text className='font-medium text-red-400'>Tomorrow by 6pm</Text>{' '}
+              - FREE delivery with your JU membership
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={() => {
+              option === true ? setCurrentStep(2) : null;
+            }}
+            className='p-2.5 rounded-3xl items-center justify-center bg-[#225372d9]'
+          >
+            <Text className='text-white text-base tracking-wide font-medium'>
+              Continue
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
+      {currentStep === 2 && (
+        <View className='mx-5'>
+          <Text className='text-xl font-bold tracking-tight'>
+            Select your payment Method
+          </Text>
+
+          <View className='bg-white p-2 border-gray-50 border flex-row items-center gap-2 mt-3'>
+            {selectedOption === 'cash' ? (
+              <Pressable>
+                <FontAwesomeIcon
+                  icon={faCircleDot}
+                  color='#225372d9'
+                  size={20}
+                />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => setSelectedOption('cash')}>
+                <FontAwesomeIcon icon={faCircle} color='#225372d9' size={20} />
+              </Pressable>
+            )}
+
+            <Text className='font-normal tracking-wide'>Cash on Delivery</Text>
+          </View>
+
+          <View className='bg-white p-2 border-gray-50 border flex-row items-center gap-2 mt-3'>
+            {selectedOption === 'card' ? (
+              <Pressable>
+                <FontAwesomeIcon
+                  icon={faCircleDot}
+                  color='#225372d9'
+                  size={20}
+                />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => setSelectedOption('card')}>
+                <FontAwesomeIcon icon={faCircle} color='#225372d9' size={20} />
+              </Pressable>
+            )}
+
+            <Text className='font-normal tracking-wide'>
+              Pay with International debit/credit card
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={() => setCurrentStep(3)}
+            className='p-2.5 rounded-3xl mt-3 items-center justify-center bg-[#225372d9]'
+          >
+            <Text className='text-white text-base tracking-wide font-medium'>
+              Continue
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
+      {currentStep === 3 && selectedOption === 'cash' && (
+        <View className='mx-5'>
+          <Text className='text-xl font-bold'>Order Now</Text>
+
+          <View className='flex-row items-center justify-between gap-2 bg-white p-1 border border-gray-200 mt-1.5'>
+            <View className='mt-0'>
+              <Text className='text-lg font-bold'>
+                Save 5% and never run out
+              </Text>
+              <Text className='text-base text-gray-500 mt-1'>
+                Fast delivery assured
+              </Text>
+            </View>
+
+            <ChevronRightIcon size={24} color='black' />
+          </View>
+
+          <View className='bg-white p-2 border-gray-200 -ml-1.5 border mt-2.5'>
+            <Text className='text base tracking-wide'>
+              Shipping to {selectedAddress?.name}
+            </Text>
+
+            <View className='flex-row items-center justify-between mt-2'>
+              <Text className='text-base font-medium text-gray-500'>Items</Text>
+
+              <Text className='text-gray-500 text-base'>₦{formattedTotal}</Text>
+            </View>
+
+            <View className='flex-row items-center justify-between mt-2'>
+              <Text className='text-base font-medium text-gray-500'>
+                Delivery
+              </Text>
+
+              <Text className='text-gray-500 text-base'>₦0</Text>
+            </View>
+
+            <View className='flex-row items-center justify-between mt-2'>
+              <Text className='text-lg font-bold'>Order Total</Text>
+
+              <Text className='text-red-700 text-lg font-bold'>
+                ₦{formattedTotal}
+              </Text>
+            </View>
+          </View>
+
+          <View className='bg-white p-2 border mt-2.5 -ml-1.5 border-gray-200'>
+            <Text className='text-gray-500 text-base'>Pay With</Text>
+
+            <Text className='font-semibold text-base mt-1.5'>
+              Pay on delivery (Cash)
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={handlePlaceOrder}
+            className='p-2.5 rounded-3xl mt-5 items-center justify-center bg-[#225372d9]'
+          >
+            <Text className='text-white text-base tracking-wide font-medium'>
+              Place your order
+            </Text>
+          </Pressable>
         </View>
       )}
     </ScrollView>

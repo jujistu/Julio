@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Address: undefined;
   AddAddress: undefined;
   Confirmation: undefined;
+  OrderScreen: undefined;
 };
 
 export type TabStackParamList = {

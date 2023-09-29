@@ -27,6 +27,7 @@ import AddAddress from '../screens/AddAddress';
 import Address from '../screens/Address';
 import { UserContext } from '../context/UserContext';
 import ConfirmationScreen from '../screens/ConfirmationScreen';
+import OrderScreen from '../screens/OrderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -123,6 +124,11 @@ const StackNavigation: FC = () => {
               <Stack.Screen
                 name='Confirmation'
                 component={ConfirmationScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='OrderScreen'
+                component={OrderScreen}
                 options={{ headerShown: false }}
               />
             </Stack.Navigator>

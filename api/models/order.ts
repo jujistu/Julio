@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
         required: true,
       },
       price: {
-        type: Number,
+        type: String,
         required: true,
       },
       image: {
@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema({
     },
   ],
   totalPrice: {
-    type: Number,
+    type: String,
     required: true,
   },
   shippingAddress: {
