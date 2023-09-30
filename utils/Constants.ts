@@ -161,7 +161,7 @@ export const offers = [
     id: 0,
     title: 'Razer DeathAdder Essential Gaming Mouse',
     oldPrice: '29,000',
-    price: 24000 / 970,
+    price: 2500 / 970,
     image: 'https://m.media-amazon.com/images/I/8189uwDnMkL._AC_SX679_.jpg',
     carouselImages: [
       'https://m.media-amazon.com/images/I/612ydhRz3XS._AC_SX679_.jpg',

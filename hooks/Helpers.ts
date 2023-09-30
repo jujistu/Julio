@@ -47,3 +47,13 @@ export const addHours = (date: Date, hours: number) => {
 
   return date;
 };
+
+export const fetchUserProfile = async (setUser: any, userId: string) => {
+  try {
+    const response = await axios.get(`http://localhost:8000/profile/${userId}`);
+    const { user } = response.data;
+    setUser(user);
+  } catch (error) {
+    console.log('error', error);
+  }
+};

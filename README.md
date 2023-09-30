@@ -11,3 +11,5 @@ redux toolkit
 react native modals
 jwt for authentication
 jwt decode for authorization add address
+lottie for animation
+react native dialog for dialog modals

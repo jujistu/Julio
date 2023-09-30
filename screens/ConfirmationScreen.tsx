@@ -19,23 +19,24 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useToast } from 'react-native-toast-notifications';
 import { clearCart } from '../redux/CartReducer';
+import Dialog from 'react-native-dialog';
 
 type Prop = NativeStackScreenProps<RootStackParamList, 'Confirmation'>;
 
 const ConfirmationScreen: FC<Prop> = ({ navigation }) => {
   const toast = useToast();
 
+  const [showPopUp, setShowPopUp] = useState<boolean>(false);
+
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const [addresses, setAddresses] = useState([]);
-
-  const [selectedAddress, setSelectedAddress] = useState<any>(); //for address
 
   const [option, setOption] = useState<boolean>(false); //for delivery
 
   const [selectedOption, setSelectedOption] = useState<string>(''); //for payment method
 
-  const { setUserId, userId } = useUserContext();
+  const { userId, selectedAddress, setSelectedAddress } = useUserContext(); //for address,userId and user details
 
   fetchAddresses(setAddresses, userId);
 
@@ -73,6 +74,7 @@ const ConfirmationScreen: FC<Prop> = ({ navigation }) => {
         });
         navigation.navigate('OrderScreen');
         dispatch(clearCart());
+        setCurrentStep(0);
       } else {
         console.log('error Order', response.data);
       }
@@ -245,7 +247,13 @@ const ConfirmationScreen: FC<Prop> = ({ navigation }) => {
                 />
               </Pressable>
             ) : (
-              <Pressable onPress={() => setSelectedOption('card')}>
+              <Pressable
+                onPress={() => {
+                  setSelectedOption('card');
+
+                  setShowPopUp(true);
+                }}
+              >
                 <FontAwesomeIcon icon={faCircle} color='#225372d9' size={20} />
               </Pressable>
             )}
@@ -329,6 +337,38 @@ const ConfirmationScreen: FC<Prop> = ({ navigation }) => {
           </Pressable>
         </View>
       )}
+
+      <View className='flex-1'>
+        <Dialog.Container
+          visible={showPopUp}
+          onBackdropPress={() => setShowPopUp(false)}
+        >
+          <Dialog.Title className='text-lg mt-0 tracking-wide'>
+            Pay Online
+          </Dialog.Title>
+          <Dialog.Description className='text-base tracking-tight'>
+            Pay with your debit/credit card using Flutterwave
+          </Dialog.Description>
+          <Dialog.Button
+            label='Cancel'
+            onPress={() => {
+              setShowPopUp(false);
+              setSelectedOption('');
+            }}
+          />
+          <Dialog.Button
+            bold={true}
+            color='green'
+            label='Ok'
+            onPress={() => {
+              setCurrentStep(0);
+              setSelectedOption('');
+              setShowPopUp(false);
+              navigation.navigate('FlutterPay');
+            }}
+          />
+        </Dialog.Container>
+      </View>
     </ScrollView>
   );
 };

@@ -28,6 +28,8 @@ import Address from '../screens/Address';
 import { UserContext } from '../context/UserContext';
 import ConfirmationScreen from '../screens/ConfirmationScreen';
 import OrderScreen from '../screens/OrderScreen';
+import PayStack from '../screens/Flutterwave';
+import Flutterwave from '../screens/Flutterwave';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -129,6 +131,11 @@ const StackNavigation: FC = () => {
               <Stack.Screen
                 name='OrderScreen'
                 component={OrderScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='FlutterPay'
+                component={Flutterwave}
                 options={{ headerShown: false }}
               />
             </Stack.Navigator>

@@ -9,6 +9,7 @@ export type RootStackParamList = {
   AddAddress: undefined;
   Confirmation: undefined;
   OrderScreen: undefined;
+  FlutterPay: undefined;
 };
 
 export type TabStackParamList = {

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response, response } from 'express';
 
 //Imports
 const express = require('express');
@@ -21,6 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const port: number = 8000;
+
+const SecretKey = process.env.Paystack_SecretKey as string;
 
 const connectionUrl = process.env.connection_Url as string;
 
