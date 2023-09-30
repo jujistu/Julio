@@ -271,8 +271,6 @@ app.post('/addresses', async (req: Request, res: Response) => {
   try {
     const { userId, address } = req.body;
 
-    console.log('address', address);
-
     // find the user by the userId
     const user = await User.findById(userId);
 

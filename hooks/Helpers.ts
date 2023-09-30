@@ -48,11 +48,29 @@ export const addHours = (date: Date, hours: number) => {
   return date;
 };
 
+//fetch UserProfile
 export const fetchUserProfile = async (setUser: any, userId: string) => {
   try {
     const response = await axios.get(`http://localhost:8000/profile/${userId}`);
     const { user } = response.data;
     setUser(user);
+  } catch (error) {
+    console.log('error', error);
+  }
+};
+
+export const fetchOrders = async (
+  userId: string,
+  setOrders: any,
+  setLoading: any
+) => {
+  try {
+    // setLoading(true);
+    const response = await axios.get(`http://localhost:8000/orders/${userId}`);
+    const orders = response.data.orders;
+    setOrders(orders);
+
+    setLoading(false);
   } catch (error) {
     console.log('error', error);
   }

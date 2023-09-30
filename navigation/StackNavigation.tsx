@@ -36,7 +36,7 @@ const Tab = createBottomTabNavigator<TabStackParamList>();
 
 const BottomTabs = () => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName='Home'>
       <Tab.Screen
         name='Home'
         component={HomeScreen}
@@ -58,7 +58,6 @@ const BottomTabs = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarLabelStyle: { color: 'rgba(30 58 138/1)' },
-          headerShown: false,
           tabBarIcon: ({ focused }) =>
             focused ? (
               <UserSolid color='rgba(30 58 138/1)' />
